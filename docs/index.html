@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Duas décadas de vítimas de auto de resistência no Rio de Janeiro (2003–2022)</title>
+<meta name="description" content="Análise reprodutível da série de vítimas de auto de resistência no Município do Rio de Janeiro, 1º quadrimestre de 2003 a 2022 (Data.Rio / ISP-RJ), com pipeline em Python e princípios FAIR.">
+<meta name="keywords" content="auto de resistência, letalidade policial, Rio de Janeiro, análise de dados, Python, FAIR">
+<meta name="citation_title" content="Duas décadas de vítimas de auto de resistência no Rio de Janeiro (2003–2022)">
+<meta name="citation_author" content="Matheus Gomes da Costa">
+<meta name="citation_publication_date" content="2026/11">
+<meta name="license" content="CC-BY-4.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#faf8f4; --card:#fff; --ink:#1c2a3a; --muted:#5f6b7a; --rule:#e5dfd3;
+  --blue:#1f3a5f; --teal:#2a7f78; --rust:#c2501c; --sand:#b9ad94; --code:#14202e;
+  --serif:'Source Serif 4',Georgia,'Times New Roman',serif; --sans:'Inter',system-ui,-apple-system,Segoe UI,sans-serif; --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:64px}
+body{margin:0;background:var(--paper);color:var(--ink);font:18px/1.7 var(--serif);-webkit-font-smoothing:antialiased}
+a{color:var(--blue);text-underline-offset:3px}
+a:hover{color:var(--rust)}
+.wrap{max-width:760px;margin:0 auto;padding:0 20px}
+.wide{max-width:980px;margin:0 auto;padding:0 20px}
+
+/* barra superior */
+.bar{position:sticky;top:0;z-index:10;background:rgba(250,248,244,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--rule);font:500 13px var(--sans)}
+.bar .wide{display:flex;gap:18px;align-items:center;height:48px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+.bar a{color:var(--muted);text-decoration:none}
+.bar a:hover{color:var(--ink)}
+.bar .gh{margin-left:auto;color:#fff;background:var(--ink);padding:6px 12px;border-radius:6px}
+.bar .gh:hover{background:var(--rust);color:#fff}
+.prog{position:fixed;top:0;left:0;height:3px;background:var(--rust);width:0;z-index:11}
+
+/* cabeçalho */
+header.top{padding:64px 0 28px;border-bottom:1px solid var(--rule)}
+.kicker{font:600 12px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--rust);margin:0 0 14px}
+h1{font:700 clamp(30px,5.2vw,46px)/1.12 var(--serif);letter-spacing:-.015em;margin:0 0 22px}
+.authors{font:500 16px/1.5 var(--sans);margin:0}
+.affil{font:400 14px/1.6 var(--sans);color:var(--muted);margin:4px 0 0}
+.todo{background:#fff3cd;padding:0 4px;border-radius:3px}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 0;padding:0;list-style:none;font:500 12px var(--sans)}
+.badges li{display:flex;border-radius:5px;overflow:hidden;border:1px solid var(--rule);background:var(--card)}
+.badges b{background:var(--ink);color:#fff;padding:3px 8px;font-weight:500}
+.badges span{padding:3px 8px}
+
+/* resumo */
+.abstract{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--blue);border-radius:6px;padding:22px 26px;margin:34px 0 0;font-size:16.5px;line-height:1.65}
+.abstract h2{font:600 12px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin:0 0 10px}
+.abstract p{margin:0}
+.kw{margin-top:14px!important;font:14px var(--sans);color:var(--muted)}
+.kw b{color:var(--ink)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:26px 0 0}
+.kpi{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:14px 16px}
+.kpi strong{display:block;font:700 28px/1.1 var(--serif);color:var(--ink)}
+.kpi span{font:400 12.5px/1.35 var(--sans);color:var(--muted);display:block;margin-top:4px}
+.kpi.r strong{color:var(--rust)} .kpi.t strong{color:var(--teal)}
+
+/* texto */
+section{padding-top:8px}
+h2.s{font:700 26px/1.25 var(--serif);margin:52px 0 14px;letter-spacing:-.01em}
+h3{font:600 14px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:30px 0 8px}
+p{margin:0 0 1.1em}
+.rq{margin:18px 0;padding:0;list-style:none;display:grid;gap:10px}
+.rq li{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:14px 18px 14px 64px;position:relative;font-size:17px;line-height:1.55}
+.rq li b{position:absolute;left:18px;top:14px;font:700 14px var(--sans);color:#fff;background:var(--rust);border-radius:5px;padding:3px 8px}
+.note{font:400 14.5px/1.6 var(--sans);color:var(--muted);background:#f1ede4;border-radius:8px;padding:12px 16px;margin:20px 0}
+.note b{color:var(--ink)}
+code{font:500 .86em var(--mono);background:#efeae0;padding:1px 5px;border-radius:4px}
+pre{background:var(--code);color:#e6edf3;border-radius:8px;padding:16px 18px;overflow-x:auto;font:400 13px/1.6 var(--mono);margin:16px 0}
+pre code{background:none;padding:0;color:inherit;font:inherit}
+pre .c{color:#7f8da0} pre .k{color:#f0a070} pre .s{color:#8fd0c4} pre .f{color:#9db8e8}
+.cap{font:400 14px/1.5 var(--sans);color:var(--muted);margin:8px 0 0}
+.cap b{color:var(--ink)}
+
+/* figuras */
+figure{margin:34px 0;background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:18px 14px 14px}
+figure .plot{width:100%;height:420px}
+figure.sm .plot{height:380px}
+figure img{width:100%;height:auto}
+figcaption{padding:6px 10px 0}
+.hint{font:400 12px var(--sans);color:var(--sand);text-align:right;padding-right:6px}
+
+/* tabelas */
+.tw{overflow-x:auto;margin:22px 0;border:1px solid var(--rule);border-radius:8px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font:400 14px/1.4 var(--sans);font-variant-numeric:tabular-nums}
+th,td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--rule);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{font-weight:600;background:#f5f1e8;position:sticky;top:0}
+tbody tr:last-child td{border-bottom:0}
+.up{color:var(--rust)} .down{color:var(--teal)}
+details{margin:18px 0;background:var(--card);border:1px solid var(--rule);border-radius:8px}
+summary{cursor:pointer;padding:12px 16px;font:500 14px var(--sans)}
+details .tw{margin:0;border:0;border-top:1px solid var(--rule);border-radius:0 0 8px 8px;max-height:460px;overflow:auto}
+
+.fair{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:18px 0;padding:0;list-style:none}
+.fair li{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:14px 16px;font:400 14.5px/1.55 var(--sans)}
+.fair li b{display:block;font:700 15px var(--sans);color:var(--teal);margin-bottom:2px}
+ol.refs{padding-left:0;list-style:none;font:400 15px/1.6 var(--sans)}
+ol.refs li{margin-bottom:12px;padding-left:2.2em;text-indent:-2.2em;word-break:break-word}
+footer{margin-top:64px;padding:28px 0 56px;border-top:1px solid var(--rule);font:400 13.5px/1.6 var(--sans);color:var(--muted)}
+
+@media (max-width:720px){
+  body{font-size:17px}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .fair{grid-template-columns:1fr}
+  figure .plot{height:340px}
+  header.top{padding-top:40px}
+  .abstract{padding:18px}
+  .rq li{padding:14px 16px}
+  .rq li b{position:static;display:block;width:max-content;margin-bottom:8px}
+}
+@media print{.bar,.prog{display:none}figure{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="prog" id="prog"></div>
+<nav class="bar" aria-label="Seções">
+  <div class="wide">
+    <a href="#resumo">Resumo</a><a href="#introducao">Introdução</a><a href="#metodologia">Metodologia</a>
+    <a href="#resultados">Resultados</a><a href="#conclusao">Conclusão</a><a href="#fair">FAIR</a><a href="#referencias">Referências</a>
+    <a class="gh" href="https://github.com/matheusg0mes/VItimas-de-auto-de-resistencia" target="_blank" rel="noopener">Repositório ↗</a>
+  </div>
+</nav>
+
+<header class="top">
+  <div class="wrap">
+    <p class="kicker">Artigo de conclusão de disciplina · Análise e Visualização de Dados com Python</p>
+    <h1>Duas décadas de vítimas de auto de resistência no Rio de Janeiro: queda, vale e retomada (2003–2022)</h1>
+    <p class="authors">Matheus Gomes da Costa</p>
+    <p class="affil">Bacharelado em Sistemas de Informação · 6º período · Linguagem de Programação (Análise e Visualização de Dados com Python) · <span class="todo">[Nome da instituição]</span> · 2026.2</p>
+    <ul class="badges" aria-label="Metadados">
+      <li><b>Python</b><span>3.11+</span></li>
+      <li><b>pandas · NumPy · SciPy · Plotly</b><span>stack</span></li>
+      <li><b>código</b><span>MIT</span></li>
+      <li><b>dados e texto</b><span>CC-BY 4.0</span></li>
+      <li><b>FAIR</b><span>aderente</span></li>
+      <li><b>fonte</b><span>Data.Rio · ISP-RJ</span></li>
+    </ul>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+  <section id="resumo">
+    <div class="abstract">
+      <h2>Resumo</h2>
+      <p>Este estudo analisa a série oficial de vítimas de auto de resistência (homicídio decorrente de oposição à intervenção policial) no Município do Rio de Janeiro, considerando o primeiro quadrimestre de cada ano entre 2003 e 2022, a partir da Tabela 2300 do Data.Rio, elaborada com dados do Instituto de Segurança Pública (ISP-RJ). Por meio de um pipeline reprodutível em Python (pandas, NumPy e SciPy), os dados foram higienizados, validados contra as métricas derivadas publicadas pela fonte e enriquecidos com médias móveis, números-índice e uma segmentação em patamares por mínimos quadrados. Os resultados indicam que a série não segue uma tendência linear estatisticamente detectável (R² = 0,13; p = 0,118), mas se organiza em três patamares: média de 243 vítimas em 2003–2010, 102 em 2011–2016 e 194 em 2017–2022. A taxa por 100 mil habitantes caiu de 4,96 para 1,81 entre 2003 e 2022, e cerca de 86% dessa queda decorre da redução do número absoluto de vítimas, e não do crescimento populacional (+15,6%). Os resultados, de natureza descritiva e baseados em apenas vinte observações anuais, não permitem inferir causalidade, mas delimitam quando e quanto o fenômeno mudou. Código, dados e dicionário de variáveis estão abertos sob princípios FAIR.</p>
+      <p class="kw"><b>Palavras-chave:</b> auto de resistência · letalidade policial · Rio de Janeiro · análise exploratória de dados · ciência aberta</p>
+    </div>
+    <div class="kpis" aria-label="Números principais">
+      <div class="kpi"><strong>3.719</strong><span>vítimas acumuladas nos 20 primeiros quadrimestres</span></div>
+      <div class="kpi r"><strong>331</strong><span>pico em 2008 (5,33 por 100 mil hab.)</span></div>
+      <div class="kpi t"><strong>77</strong><span>vale em 2013 (1,20 por 100 mil hab.), −76,7% sobre o pico</span></div>
+      <div class="kpi"><strong>−57,7%</strong><span>variação 2003 → 2022 (291 → 123 vítimas)</span></div>
+    </div>
+  </section>
+
+  <section id="introducao">
+    <h2 class="s">1. Introdução</h2>
+    <p>Mortes causadas por agentes do Estado em situações registradas como resistência à prisão ou ao cumprimento de mandado são um dos indicadores mais sensíveis da política de segurança pública. No Rio de Janeiro, esses registros foram historicamente classificados como “auto de resistência”, expressão que a nomenclatura oficial substituiu por <em>homicídio decorrente de oposição à intervenção policial</em> a partir de 2015. A série é publicada pelo ISP-RJ e consolidada pelo Instituto Pereira Passos no portal Data.Rio, o que a torna um conjunto aberto, auditável e adequado para uma análise reprodutível.</p>
+    <p>Acompanhar o número de vítimas e sua taxa por habitante permite perguntar se o fenômeno recuou de forma contínua, se oscila entre regimes distintos e se o crescimento da população altera a leitura dos números absolutos. Este artigo trata essas questões de forma descritiva e transparente, sem atribuir causas.</p>
+    <h3>Perguntas de pesquisa</h3>
+    <ul class="rq">
+      <li><b>RQ1</b>A série de vítimas entre 2003 e 2022 segue uma tendência linear ou se organiza em patamares distintos?</li>
+      <li><b>RQ2</b>A queda da taxa por 100 mil habitantes se explica pela redução do número de vítimas ou pelo crescimento populacional?</li>
+      <li><b>RQ3</b>Quão volátil é a série de um ano para o outro e como as maiores variações se situam em relação a marcos institucionais do período?</li>
+    </ul>
+  </section>
+
+  <section id="metodologia">
+    <h2 class="s">2. Metodologia e pipeline de dados</h2>
+    <h3>2.1 Fonte e granularidade</h3>
+    <p>A fonte primária é a <strong>Tabela 2300</strong> do Data.Rio (“Vítimas de auto de resistência, diferenças em relação ao mesmo quadrimestre do ano anterior, taxa por cem mil habitantes e média mensal”), baseada em dados do ISP-RJ e tabulada pelo IPP. A unidade de observação é o <strong>ano</strong>, e cada valor representa o acumulado de <strong>janeiro a abril</strong> no Município do Rio de Janeiro: são 20 observações (2003–2022) e 7 variáveis, descritas em <code>data/data_dictionary.md</code>.</p>
+    <div class="note"><b>Atenção à cobertura.</b> A tabela não cobre o ano inteiro, apenas o 1º quadrimestre. Comparações aqui se referem a esse recorte e não devem ser extrapoladas para totais anuais. O valor de 2022 foi consultado pelo IPP em 24/05/2022 e a população desse ano é uma projeção do ISP para o último mês do quadrimestre.</div>
+
+    <h3>2.2 Tratamento dos dados</h3>
+    <p>O arquivo <code>.xls</code> traz título, notas de rodapé e células vazias ao redor da grade de dados. O ETL (<code>src/etl.py</code>) aplica as seguintes etapas, todas registradas em <code>data/processed/etl_log.json</code>:</p>
+    <ul>
+      <li><strong>Codificação e estrutura:</strong> leitura sem cabeçalho e isolamento das linhas cuja primeira coluna é um ano de quatro dígitos (20 de 39 linhas; as outras 19 são título, notas e linhas vazias).</li>
+      <li><strong>Ausentes:</strong> o marcador <code>..</code> (“não se aplica dado numérico”) aparece só em 2003, na diferença absoluta e percentual, pois não há ano anterior. Foi convertido em <code>NaN</code> e <em>não imputado</em>.</li>
+      <li><strong>Tipos:</strong> contagens em inteiro, taxas e população em ponto flutuante, nomes em <code>snake_case</code>.</li>
+      <li><strong>Validação:</strong> diferença absoluta, diferença %, taxa por 100 mil e média mensal foram recalculadas e batem com a fonte (erro máximo 0,0).</li>
+      <li><strong>Métricas derivadas:</strong> média móvel centrada de 3 anos, índice (2003 = 100), <em>z-score</em>, sinalização de <em>outliers</em> pelo critério do IQR e segmentação em três patamares.</li>
+      <li><strong>Persistência:</strong> <code>.csv.gz</code> e <code>.json</code>; o arquivo bruto nunca é alterado.</li>
+    </ul>
+
+    <pre><code><span class="c"># src/etl.py — isolar a grade, tratar '..' e validar contra a fonte</span>
+eh_ano = raw[<span class="k">0</span>].astype(str).str.<span class="f">fullmatch</span>(<span class="s">r"\d{4}(\.0)?"</span>)
+dados  = raw.loc[eh_ano, <span class="f">list</span>(COLUNAS)].<span class="f">rename</span>(columns=COLUNAS)
+dados  = dados.<span class="f">replace</span>(<span class="s">".."</span>, np.nan)             <span class="c"># 'não se aplica' -> NaN explícito</span>
+
+taxa_calc = total / df[<span class="s">"populacao"</span>] * <span class="k">1e5</span>               <span class="c"># recalcula e confere com a publicada</span>
+erro = (taxa_calc - df[<span class="s">"taxa_100k"</span>]).abs().max()</code></pre>
+
+    <h3>2.3 Segmentação em patamares</h3>
+    <p>Para responder à RQ1 sem impor um ponto de ruptura escolhido “a olho”, a série foi dividida em <em>k</em> = 3 segmentos contíguos (mínimo de 3 anos cada) que minimizam a soma dos quadrados dentro dos segmentos. Com n = 20, a busca exaustiva é imediata.</p>
+    <pre><code><span class="k">def</span> <span class="f">best_segments</span>(y, k=<span class="k">3</span>, min_len=<span class="k">3</span>):
+    sse = <span class="k">lambda</span> a, b: ((y[a:b] - y[a:b].mean()) ** <span class="k">2</span>).sum()
+    <span class="k">for</span> c <span class="k">in</span> itertools.<span class="f">combinations</span>(<span class="f">range</span>(min_len, <span class="f">len</span>(y) - min_len + <span class="k">1</span>), k - <span class="k">1</span>):
+        lims = (<span class="k">0</span>, *c, <span class="f">len</span>(y))
+        <span class="k">if</span> <span class="f">all</span>(b - a >= min_len <span class="k">for</span> a, b <span class="k">in</span> <span class="f">zip</span>(lims, lims[<span class="k">1</span>:])):
+            custo = <span class="f">sum</span>(sse(a, b) <span class="k">for</span> a, b <span class="k">in</span> <span class="f">zip</span>(lims, lims[<span class="k">1</span>:]))
+            <span class="c"># guarda a combinação de menor custo</span></code></pre>
+  </section>
+
+  <section id="resultados">
+    <h2 class="s">3. Resultados e discussão</h2>
+
+    <h3>3.1 Panorama descritivo</h3>
+    <p>Nos vinte quadrimestres, foram registradas <strong>3.719 vítimas</strong>. A média anual é de 185,9 (mediana 196,5; desvio-padrão 72,0), o que dá um coeficiente de variação de 38,7%: a série é bastante dispersa. Nenhum ano é <em>outlier</em> pelo critério do IQR, e o maior desvio é o de 2008 (z = +2,0). Entre um ano e outro houve 11 quedas, 7 altas e 1 repetição (2018).</p>
+
+    <h3>3.2 RQ1 — Tendência linear ou patamares?</h3>
+    <p>Uma reta ajustada aos dados aponta queda de 4,4 vítimas por ano, mas explica apenas 13% da variância (R² = 0,13; p = 0,118). O teste não paramétrico de Kendall também não rejeita ausência de tendência monotônica (τ = −0,16; p = 0,33). A Figura 1 mostra por quê: a série não desce de modo contínuo, ela troca de patamar.</p>
+
+    <figure id="f1">
+      <div class="plot" id="p-serie" role="img" aria-label="Série temporal de vítimas por ano, com três patamares"></div>
+      <noscript><img src="assets/fig1_serie_temporal.png" alt="Série temporal de vítimas por ano, com três patamares"></noscript>
+      <div class="hint">interativo: passe o cursor ou toque nos pontos</div>
+      <figcaption class="cap"><b>Figura 1.</b> Vítimas de auto de resistência no 1º quadrimestre, MRJ, 2003–2022. Linhas pontilhadas: média de cada patamar. Linhas tracejadas verticais: marcos contextuais, <em>não</em> testados como causas. Fonte: Data.Rio/ISP-RJ; elaboração própria.</figcaption>
+    </figure>
+
+    <p>A segmentação encontra, de modo objetivo, três regimes: <strong>2003–2010</strong> (média de 243,4; entre 190 e 331), <strong>2011–2016</strong> (101,8; entre 77 e 130) e <strong>2017–2022</strong> (193,5; entre 123 e 230). O segundo patamar tem também a menor dispersão (desvio de 18,3, contra 52,3 e 41,3). A Figura 2 compara os três regimes, e a Tabela 1 resume cada um.</p>
+
+    <figure id="f4" class="sm">
+      <div class="plot" id="p-periodos" role="img" aria-label="Boxplots das vítimas por patamar"></div>
+      <noscript><img src="assets/fig4_periodos.png" alt="Boxplots das vítimas por patamar"></noscript>
+      <figcaption class="cap"><b>Figura 2.</b> Distribuição anual por patamar. Cada ponto é um ano; a linha tracejada no box é a média. Os patamares foram definidos a partir dos próprios dados (ver 2.3).</figcaption>
+    </figure>
+
+    <div class="tw"><table id="t-periodos"><thead><tr><th>Patamar</th><th>Anos</th><th>Média</th><th>Desvio</th><th>Mín.</th><th>Máx.</th><th>Taxa média / 100 mil</th></tr></thead><tbody></tbody></table></div>
+    <p class="cap"><b>Tabela 1.</b> Estatísticas por patamar (vítimas no 1º quadrimestre).</p>
+
+    <div class="note"><b>Cuidado inferencial.</b> Como os cortes foram escolhidos com os mesmos dados que descrevem, testes de diferença entre patamares teriam p-valores otimistas. Por isso a análise é descritiva: ela localiza as rupturas e mede sua magnitude, mas não as testa.</div>
+
+    <h3>3.3 RQ2 — Queda da taxa: numerador ou denominador?</h3>
+    <p>A população do município cresceu 15,6% entre 2003 e 2022, enquanto o número de vítimas caiu 57,7% e a taxa por 100 mil habitantes passou de 4,96 para 1,81 (−63,4%). Em escala logarítmica, a variação da taxa é a soma das variações do numerador e do denominador: da queda total (−1,006), −0,861 vem da redução de vítimas e −0,145 do crescimento populacional, isto é, <strong>cerca de 86% da queda da taxa vem do próprio número de vítimas</strong>. A Figura 3 deixa isso visível: a população sobe quase em linha reta, enquanto vítimas e taxa descrevem o mesmo desenho, deslocado só pelo efeito demográfico. A correlação de Spearman entre população e vítimas é fraca e não significativa (ρ = −0,27; p = 0,26), o que reforça que as duas séries se movem de forma independente.</p>
+
+    <figure id="f3" class="sm">
+      <div class="plot" id="p-indice" role="img" aria-label="Índice 2003=100 de vítimas, taxa e população"></div>
+      <noscript><img src="assets/fig3_indice_2003.png" alt="Índice 2003=100 de vítimas, taxa e população"></noscript>
+      <figcaption class="cap"><b>Figura 3.</b> Vítimas, taxa por 100 mil habitantes e população em número-índice (2003 = 100). Fonte: Data.Rio/ISP-RJ; elaboração própria.</figcaption>
+    </figure>
+
+    <h3>3.4 RQ3 — Volatilidade e marcos do período</h3>
+    <p>A série é instável: a maior alta foi <strong>+62,2% em 2017</strong> (111 → 180) e a maior queda foi <strong>−49,5% em 2011</strong> (212 → 107). Outras quedas expressivas ocorreram em 2022 (−44,3%), 2009 (−31,4%) e 2004 (−30,2%). Depois do pico de 2008, a série cai por três anos seguidos (2009–2011: de 331 para 107) e chega ao vale em 2013 (77). A recuperação é irregular: altas em 2014 (+19,5%) e 2015 (+41,3%), recuo em 2016 e o salto de 2017.</p>
+
+    <figure id="f2">
+      <div class="plot" id="p-variacao" role="img" aria-label="Variação percentual anual do número de vítimas"></div>
+      <noscript><img src="assets/fig2_variacao_anual.png" alt="Variação percentual anual do número de vítimas"></noscript>
+      <figcaption class="cap"><b>Figura 4.</b> Variação percentual sobre o ano anterior. Laranja: aumento; verde-petróleo: queda. 2003 não tem referência anterior.</figcaption>
+    </figure>
+
+    <p>Três marcos institucionais do período aparecem na Figura 1: o início da implantação das Unidades de Polícia Pacificadora (dezembro de 2008), a intervenção federal na segurança do estado (2018) e a decisão do STF na ADPF 635, que restringiu operações policiais em favelas durante a pandemia (junho de 2020, mantida pelo plenário em agosto do mesmo ano) <a href="#ref8">[8]</a>. A queda de 2009–2011 acontece logo após o primeiro marco, e a série permanece em 221–230 vítimas em 2019–2021, sem recuo após o terceiro (2020: 227; 2021: 221). Essas coincidências são <strong>hipóteses para investigação</strong>, não resultados: há uma só série agregada, sem grupo de comparação, e muitos fatores variam ao mesmo tempo (composição das operações, registro de ocorrências, mudanças de classificação, conflitos armados, pandemia). O recuo de 2022 é o mais cauteloso de interpretar: é o último ponto, consultado em maio de 2022, e dados recentes costumam ser revisados.</p>
+
+    <details>
+      <summary>Ver a tabela completa de dados processados</summary>
+      <div class="tw"><table id="t-dados"><thead><tr><th>Ano</th><th>Vítimas</th><th>Δ abs.</th><th>Δ %</th><th>População</th><th>Taxa / 100 mil</th><th>Média mensal</th></tr></thead><tbody></tbody></table></div>
+    </details>
+  </section>
+
+  <section id="conclusao">
+    <h2 class="s">4. Conclusão</h2>
+    <p>A série de vítimas de auto de resistência no Rio não segue uma trajetória linear de queda: entre 2003 e 2022, ela passa por três patamares (243, 102 e 194 vítimas em média por quadrimestre), com o vale de 2013 (77) a apenas 23% do pico de 2008 (331). A taxa por 100 mil habitantes caiu 63,4% no período, e cerca de 86% dessa redução vem da diminuição do número de vítimas, não do crescimento populacional. O último patamar volta a ter quase o dobro do nível do vale, o que torna a narrativa de “queda contínua” incorreta.</p>
+    <h3>Limitações</h3>
+    <ul>
+      <li>Cobre apenas janeiro a abril e apenas o município do Rio de Janeiro; não há dados mensais, por local, perfil das vítimas ou número de operações.</li>
+      <li>São 20 observações de uma única série agregada, e por isso a análise é descritiva e não causal.</li>
+      <li>A classificação policial é provisória e pode mudar no curso da investigação, como a própria fonte ressalta; o ponto de 2022 pode ter sido revisado depois da coleta.</li>
+      <li>A mudança de nomenclatura oficial (2015) pode afetar a comparabilidade dos registros ao longo do tempo.</li>
+    </ul>
+    <h3>Trabalhos futuros</h3>
+    <p>Obter a série mensal e por área de planejamento para examinar sazonalidade e concentração territorial; incluir o número de operações e de ocorrências para normalizar por exposição; e aplicar modelos de séries temporais com intervenção (<em>interrupted time series</em>) para testar, com cautela, os marcos aqui apenas sinalizados.</p>
+  </section>
+
+  <section id="fair">
+    <h2 class="s">5. Disponibilidade dos dados e declaração FAIR</h2>
+    <ul class="fair">
+      <li><b>Findable</b>README com resumo, palavras-chave e link para a fonte original; autoria e disciplina identificadas em todos os artefatos.</li>
+      <li><b>Accessible</b>Repositório público no GitHub; scripts rodam sem credenciais; artigo publicado via GitHub Pages, responsivo.</li>
+      <li><b>Interoperable</b><code>data/data_dictionary.md</code> descreve cada variável; dados processados em <code>.csv.gz</code> e <code>.json</code>.</li>
+      <li><b>Reusable</b>Código sob MIT, dados e texto sob CC-BY 4.0; <code>requirements.txt</code> com versões fixadas.</li>
+    </ul>
+    <p>Para reproduzir o pipeline completo:</p>
+    <pre><code>git clone https://github.com/matheusg0mes/VItimas-de-auto-de-resistencia.git
+cd VItimas-de-auto-de-resistencia
+python -m venv .venv &amp;&amp; source .venv/bin/activate   <span class="c"># Windows: .venv\Scripts\activate</span>
+pip install -r requirements.txt
+python -m src.etl        <span class="c"># data/raw -> data/processed</span>
+python -m src.figures    <span class="c"># gera docs/assets (figuras)</span>
+jupyter lab notebooks/analise_exploratoria.ipynb</code></pre>
+  </section>
+
+  <section id="referencias">
+    <h2 class="s">6. Referências</h2>
+    <ol class="refs">
+      <li id="ref1">[1] DATA.RIO. <strong>Tabela 2300 – Vítimas de auto de resistência, diferenças em relação ao mesmo quadrimestre do ano anterior, taxa por cem mil habitantes e média mensal, segundo o 1º quadrimestre de cada ano, no Município do Rio de Janeiro, 2003–2022</strong>. Rio de Janeiro: Instituto Pereira Passos, 2022. Disponível em: <a href="https://www.data.rio/" target="_blank" rel="noopener">https://www.data.rio/</a>.</li>
+      <li id="ref2">[2] INSTITUTO DE SEGURANÇA PÚBLICA (RJ). <strong>ISPDados</strong>. Disponível em: <a href="http://www.ispdados.rj.gov.br/" target="_blank" rel="noopener">http://www.ispdados.rj.gov.br/</a>. Acesso em: 24 maio 2022 (data de consulta registrada na tabela).</li>
+      <li id="ref3">[3] McKINNEY, W. Data structures for statistical computing in Python. In: PYTHON IN SCIENCE CONFERENCE, 9., 2010. <strong>Proceedings…</strong> 2010. p. 56–61.</li>
+      <li id="ref4">[4] HARRIS, C. R. et al. Array programming with NumPy. <strong>Nature</strong>, v. 585, p. 357–362, 2020.</li>
+      <li id="ref5">[5] VIRTANEN, P. et al. SciPy 1.0: fundamental algorithms for scientific computing in Python. <strong>Nature Methods</strong>, v. 17, p. 261–272, 2020.</li>
+      <li id="ref6">[6] PLOTLY TECHNOLOGIES INC. <strong>Collaborative data science</strong>. Montreal, 2015. Disponível em: <a href="https://plotly.com/python/" target="_blank" rel="noopener">https://plotly.com/python/</a>.</li>
+      <li id="ref7">[7] WILKINSON, M. D. et al. The FAIR Guiding Principles for scientific data management and stewardship. <strong>Scientific Data</strong>, v. 3, art. 160018, 2016.</li>
+      <li id="ref8">[8] STF decide manter suspensão das atividades policiais em favelas durante pandemia. <strong>Brasil de Fato</strong>, 4 ago. 2020. Disponível em: <a href="https://www.brasildefato.com.br/2020/08/04/stf-decide-manter-suspensao-das-atividades-policiais-em-favelas-durante-pandemia/" target="_blank" rel="noopener">brasildefato.com.br</a>.</li>
+    </ol>
+  </section>
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    Código sob licença MIT; dados processados, texto e figuras sob CC-BY 4.0. Os dados são de domínio público, publicados por Data.Rio / ISP-RJ.
+    Trabalho acadêmico de conclusão de disciplina, 2026.2. <a href="https://github.com/matheusg0mes/VItimas-de-auto-de-resistencia" target="_blank" rel="noopener">Código-fonte no GitHub</a>.
+  </div>
+</footer>
+
+<script src="assets/vendor/plotly.min.js"></script>
+<script src="assets/charts.js"></script>
+<script>
+(function(){
+  var cfg={responsive:true,displaylogo:false,modeBarButtonsToRemove:['lasso2d','select2d','autoScale2d']};
+  [['serie','p-serie'],['variacao','p-variacao'],['indice','p-indice'],['periodos','p-periodos']].forEach(function(p){
+    var f=window.FIGS[p[0]], el=document.getElementById(p[1]);
+    Plotly.newPlot(el,f.data,f.layout,cfg);
+  });
+
+  var fmt=function(v,d){return v==null?'—':v.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d})};
+  var sgn=function(v,d,s){if(v==null)return '—';var c=v>0?'up':v<0?'down':'';return '<span class="'+c+'">'+(v>0?'+':'')+fmt(v,d)+s+'</span>'};
+
+  // Tabela 1 (patamares) calculada a partir dos dados
+  var D=window.DADOS, grupos={};
+  D.forEach(function(r){(grupos[r.periodo]=grupos[r.periodo]||[]).push(r)});
+  var tb=document.querySelector('#t-periodos tbody');
+  Object.keys(grupos).forEach(function(k){
+    var g=grupos[k], v=g.map(function(r){return r.total_jan_abr}), n=v.length;
+    var m=v.reduce(function(a,b){return a+b},0)/n;
+    var sd=Math.sqrt(v.reduce(function(a,b){return a+(b-m)*(b-m)},0)/(n-1));
+    var tx=g.reduce(function(a,r){return a+r.taxa_100k},0)/n;
+    tb.insertAdjacentHTML('beforeend','<tr><td>'+({P1:'P1 · alto',P2:'P2 · vale',P3:'P3 · retomada'}[k.replace(/ \(.*/,'')])+'</td><td>'+g[0].ano+'–'+g[n-1].ano+'</td><td>'+fmt(m,1)+'</td><td>'+fmt(sd,1)+'</td><td>'+Math.min.apply(null,v)+'</td><td>'+Math.max.apply(null,v)+'</td><td>'+fmt(tx,2)+'</td></tr>');
+  });
+
+  // Tabela completa
+  var t2=document.querySelector('#t-dados tbody');
+  D.forEach(function(r){
+    t2.insertAdjacentHTML('beforeend','<tr><td>'+r.ano+'</td><td>'+r.total_jan_abr+'</td><td>'+sgn(r.diferenca_absoluta,0,'')+'</td><td>'+sgn(r.diferenca_pct,1,'%')+'</td><td>'+fmt(r.populacao,0)+'</td><td>'+fmt(r.taxa_100k,2)+'</td><td>'+fmt(r.media_mensal,2)+'</td></tr>');
+  });
+
+  // barra de progresso de leitura
+  var bar=document.getElementById('prog');
+  addEventListener('scroll',function(){var h=document.documentElement;bar.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%'},{passive:true});
+})();
+</script>
+</body>
+</html>

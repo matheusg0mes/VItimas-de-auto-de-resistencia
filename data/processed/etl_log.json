@@ -1,0 +1,35 @@
+{
+  "linhas_brutas": 39,
+  "linhas_de_dados": 20,
+  "linhas_descartadas_titulo_notas_vazias": 19,
+  "valores_'..'_convertidos_para_NaN": {
+    "diferenca_absoluta": 1,
+    "diferenca_pct": 1
+  },
+  "nulos_por_coluna": {
+    "diferenca_absoluta": 1,
+    "diferenca_pct": 1
+  },
+  "anos": [
+    2003,
+    2022
+  ],
+  "validacao_vs_fonte": {
+    "diferenca_absoluta": {
+      "erro_abs_max": 0.0,
+      "consistente": true
+    },
+    "diferenca_pct": {
+      "erro_abs_max": 0.0,
+      "consistente": true
+    },
+    "taxa_100k": {
+      "erro_abs_max": 0.0,
+      "consistente": true
+    },
+    "media_mensal": {
+      "erro_abs_max": 0.0,
+      "consistente": true
+    }
+  }
+}

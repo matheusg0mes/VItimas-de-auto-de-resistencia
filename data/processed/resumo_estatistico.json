@@ -1,0 +1,90 @@
+{
+  "n_anos": 20,
+  "total_acumulado": 3719,
+  "media": 185.9,
+  "mediana": 196.5,
+  "desvio_padrao": 72.0,
+  "coef_variacao_pct": 38.7,
+  "q1": 120.0,
+  "q3": 227.0,
+  "pico": {
+    "ano": 2008,
+    "total": 331,
+    "taxa": 5.33
+  },
+  "vale": {
+    "ano": 2013,
+    "total": 77,
+    "taxa": 1.2
+  },
+  "queda_pico_vale_pct": -76.7,
+  "var_2003_2022_pct": -57.7,
+  "taxa_2003": 4.96,
+  "taxa_2022": 1.81,
+  "populacao_var_pct": 15.6,
+  "decomposicao_taxa": {
+    "ln_taxa": -1.006,
+    "ln_total": -0.861,
+    "ln_populacao": -0.145,
+    "parcela_numerador_pct": 85.6
+  },
+  "tendencia_linear": {
+    "inclinacao_por_ano": -4.39,
+    "r2": 0.13,
+    "p_valor": 0.118
+  },
+  "kendall_tau": {
+    "tau": -0.159,
+    "p_valor": 0.33
+  },
+  "spearman_total_vs_populacao": {
+    "rho": -0.265,
+    "p_valor": 0.259
+  },
+  "anos_com_alta": 7,
+  "anos_com_queda": 11,
+  "maior_alta_pct": {
+    "ano": 2017,
+    "valor": 62.2
+  },
+  "maior_queda_pct": {
+    "ano": 2011,
+    "valor": -49.5
+  },
+  "outliers_iqr": [],
+  "periodos": [
+    {
+      "rotulo": "2003–2010",
+      "ano_ini": 2003,
+      "ano_fim": 2010,
+      "n": 8,
+      "media": 243.4,
+      "desvio": 52.3,
+      "min": 190,
+      "max": 331,
+      "taxa_media": 3.97
+    },
+    {
+      "rotulo": "2011–2016",
+      "ano_ini": 2011,
+      "ano_fim": 2016,
+      "n": 6,
+      "media": 101.8,
+      "desvio": 18.3,
+      "min": 77,
+      "max": 130,
+      "taxa_media": 1.58
+    },
+    {
+      "rotulo": "2017–2022",
+      "ano_ini": 2017,
+      "ano_fim": 2022,
+      "n": 6,
+      "media": 193.5,
+      "desvio": 41.3,
+      "min": 123,
+      "max": 230,
+      "taxa_media": 2.89
+    }
+  ]
+}
